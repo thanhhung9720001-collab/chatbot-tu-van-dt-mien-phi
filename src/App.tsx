@@ -62,7 +62,28 @@ const QUESTIONS = [
   }
 ];
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const getAIClient = () => {
+  let key = "";
+  try {
+    // This will work in environments where process is defined (like AI Studio)
+    if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
+      key = process.env.GEMINI_API_KEY;
+    }
+  } catch (error) {
+    // Ignore reference errors if process isn't polyfilled
+  }
+  
+  if (!key) {
+    try {
+      // @ts-ignore - Fallback to Vite environment variables for Vercel
+      key = import.meta.env.VITE_GEMINI_API_KEY || "";
+    } catch (error) {
+      // Ignore
+    }
+  }
+
+  return new GoogleGenAI({ apiKey: key || "MISSING_API_KEY" });
+};
 
 const PRODUCTS = [
   // Xiaomi
@@ -468,6 +489,7 @@ DANH SÁCH SẢN PHẨM Ở KHO:
         }
       }
 
+      const ai = getAIClient();
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [...formattedHistory, { role: "user", parts: [{ text: answer }] }],
