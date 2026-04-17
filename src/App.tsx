@@ -63,23 +63,21 @@ const QUESTIONS = [
 ];
 
 const getAIClient = () => {
-  let key = "";
-  try {
-    // This will work in environments where process is defined (like AI Studio)
-    if (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) {
-      key = process.env.GEMINI_API_KEY;
-    }
-  } catch (error) {
-    // Ignore reference errors if process isn't polyfilled
-  }
-  
+  // 1. Lấy trực tiếp từ biến môi trường Vite (chuẩn Vercel)
+  let key = import.meta.env.VITE_GEMINI_API_KEY as string | undefined;
+
+  // 2. Chế độ dự phòng cho AI Studio (thay thế qua vite.config.ts)
   if (!key) {
     try {
-      // @ts-ignore - Fallback to Vite environment variables for Vercel
-      key = import.meta.env.VITE_GEMINI_API_KEY || "";
-    } catch (error) {
-      // Ignore
+      key = process.env.GEMINI_API_KEY;
+    } catch {
+      // Bỏ qua lỗi reference
     }
+  }
+
+  // Debug rỗng (chỉ in log client để kiểm tra)
+  if (!key || key.trim() === "") {
+    console.warn("LƯU Ý: Vẫn chưa nhận được API Key từ Vercel. Code biến là rỗng.");
   }
 
   return new GoogleGenAI({ apiKey: key || "MISSING_API_KEY" });
