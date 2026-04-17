@@ -506,11 +506,12 @@ DANH SÁCH SẢN PHẨM Ở KHO:
         msg.id === botWaitId ? { ...msg, text: reply, isTyping: false, options: ["Mở bảng so sánh", "Tư vấn lại từ đầu"] } : msg
       ));
       
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error calling Gemini API:", error);
+      console.error("Detailed Error Message:", error?.message);
       setIsAnalyzing(false);
       setMessages(prevMsgs => prevMsgs.map(msg => 
-        msg.id === botWaitId ? { ...msg, text: "Xin lỗi, đường truyền của Tuấn đang gặp chút sự cố mạng. Bạn nhờ anh kỹ thuật mạng check xíu nha!", isTyping: false } : msg
+        msg.id === botWaitId ? { ...msg, text: `Xin lỗi, hệ thống AI đang gặp lỗi kết nối (Có thể do thiết lập API Key). Lỗi chi tiết: ${error?.message || 'Không rõ lỗi'}`, isTyping: false } : msg
       ));
     }
   };
