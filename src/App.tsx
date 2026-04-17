@@ -5,7 +5,8 @@ import {
   Video, Calendar, Image as ImageIcon, Camera, 
   Mail, Map, Clock, Cloud, 
   FileText, TrendingUp, Book, Store, 
-  Radio, Settings, Phone, MessageSquare, Compass, Music
+  Radio, Settings, Phone, MessageSquare, Compass, Music,
+  Scale, X, Check, ArrowRight
 } from 'lucide-react';
 
 const APP_GRID = [
@@ -62,20 +63,20 @@ const QUESTIONS = [
 
 const PRODUCTS = [
   // Xiaomi
-  { id: 1, name: "Xiaomi POCO C65 8GB/256GB", price: 2.6, brand: "xiaomi", format: "basic", link: "https://s.shopee.vn/8V530QgNkD" },
-  { id: 2, name: "Xiaomi Redmi 13C 6GB/128GB", price: 2.3, brand: "xiaomi", format: "driver", link: "https://s.shopee.vn/20rZGU57w2" },
-  { id: 3, name: "Xiaomi Mi 10S 5G Snapdragon 870", price: 3.4, brand: "xiaomi", format: "game", link: "https://s.shopee.vn/8ASCboheQB" },
-  { id: 4, name: "Xiaomi Redmi 15C 8GB/256GB - Pin 6000mAh", price: 3.2, brand: "xiaomi", format: "driver", link: "https://s.shopee.vn/6VJycknznV" },
+  { id: 1, name: "Xiaomi POCO C65 8GB/256GB", price: 2.6, brand: "xiaomi", format: "basic", link: "https://s.shopee.vn/8V530QgNkD", specs: { screen: "6.74 inch 90Hz", cpu: "Helio G85", ram: "8GB", storage: "256GB", battery: "5000mAh, 18W" } },
+  { id: 2, name: "Xiaomi Redmi 13C 6GB/128GB", price: 2.3, brand: "xiaomi", format: "driver", link: "https://s.shopee.vn/20rZGU57w2", specs: { screen: "6.74 inch 90Hz", cpu: "Helio G85", ram: "6GB", storage: "128GB", battery: "5000mAh, 18W" } },
+  { id: 3, name: "Xiaomi Mi 10S 5G", price: 3.4, brand: "xiaomi", format: "game", link: "https://s.shopee.vn/8ASCboheQB", specs: { screen: "6.67 inch AMOLED 90Hz", cpu: "Snapdragon 870", ram: "8GB", storage: "128GB", battery: "4780mAh, 33W" } },
+  { id: 4, name: "Xiaomi Redmi 15C 8GB/256GB", price: 3.2, brand: "xiaomi", format: "driver", link: "https://s.shopee.vn/6VJycknznV", specs: { screen: "6.74 inch HD+", cpu: "Helio G99", ram: "8GB", storage: "256GB", battery: "6000mAh, 22.5W" } },
   // OPPO
-  { id: 5, name: "OPPO A78 5G 6GB/128GB", price: 2.6, brand: "oppo", format: "basic", link: "https://s.shopee.vn/gMBg2ACdu" },
-  { id: 6, name: "OPPO A53 Siêu phẩm pin trâu", price: 2.8, brand: "oppo", format: "game", link: "https://s.shopee.vn/8fOTCjfkPC" },
-  { id: 7, name: "OPPO Reno10 5G Màn Cong 120Hz", price: 3.8, brand: "oppo", format: "game", link: "https://s.shopee.vn/901JbLeTjE" },
-  { id: 8, name: "OPPO A79 5G 12GB/256GB Camera 50MP", price: 4.0, brand: "oppo", format: "basic", link: "https://s.shopee.vn/4qBkdguLBr" },
+  { id: 5, name: "OPPO A78 5G 6GB/128GB", price: 2.6, brand: "oppo", format: "basic", link: "https://s.shopee.vn/gMBg2ACdu", specs: { screen: "6.56 inch 90Hz", cpu: "Dimensity 700", ram: "6GB", storage: "128GB", battery: "5000mAh, 33W" } },
+  { id: 6, name: "OPPO A53", price: 2.8, brand: "oppo", format: "game", link: "https://s.shopee.vn/8fOTCjfkPC", specs: { screen: "6.5 inch 90Hz", cpu: "Snapdragon 460", ram: "4GB", storage: "128GB", battery: "5000mAh, 18W" } },
+  { id: 7, name: "OPPO Reno10 5G", price: 3.8, brand: "oppo", format: "game", link: "https://s.shopee.vn/901JbLeTjE", specs: { screen: "6.7 inch AMOLED 120Hz", cpu: "Dimensity 7050", ram: "8GB", storage: "256GB", battery: "5000mAh, 67W" } },
+  { id: 8, name: "OPPO A79 5G 12GB/256GB", price: 4.0, brand: "oppo", format: "basic", link: "https://s.shopee.vn/4qBkdguLBr", specs: { screen: "6.72 inch FHD+ 90Hz", cpu: "Dimensity 6020", ram: "12GB", storage: "256GB", battery: "5000mAh, 33W" } },
   // Other (Samsung, i17, Oukitel)
-  { id: 9, name: "Samsung Galaxy A14 6GB/128GB", price: 2.3, brand: "other", format: "basic", link: "https://s.shopee.vn/9fH0OZbwNI" },
-  { id: 10, name: "i17 Ultra Pin khủng 12000mAh", price: 2.9, brand: "other", format: "driver", link: "https://s.shopee.vn/7VCVoakBlb" },
-  { id: 11, name: "Samsung Galaxy S20 FE 120Hz", price: 3.5, brand: "other", format: "game", link: "https://s.shopee.vn/1qY94B5lH3" },
-  { id: 12, name: "Oukitel F150 B1 Pro Pin 10000mAh", price: 4.2, brand: "other", format: "driver", link: "https://s.shopee.vn/AUq7O6YlhQ" }
+  { id: 9, name: "Samsung Galaxy A14 6GB/128GB", price: 2.3, brand: "other", format: "basic", link: "https://s.shopee.vn/9fH0OZbwNI", specs: { screen: "6.6 inch PLS LCD", cpu: "Exynos 850", ram: "6GB", storage: "128GB", battery: "5000mAh, 15W" } },
+  { id: 10, name: "i17 Ultra Pin khủng", price: 2.9, brand: "other", format: "driver", link: "https://s.shopee.vn/7VCVoakBlb", specs: { screen: "6.8 inch IPS", cpu: "Unisoc T606", ram: "6GB", storage: "128GB", battery: "12000mAh, 18W" } },
+  { id: 11, name: "Samsung Galaxy S20 FE", price: 3.5, brand: "other", format: "game", link: "https://s.shopee.vn/1qY94B5lH3", specs: { screen: "6.5 inch Super AMOLED 120Hz", cpu: "Snapdragon 865", ram: "8GB", storage: "256GB", battery: "4500mAh, 25W" } },
+  { id: 12, name: "Oukitel F150 B1 Pro", price: 4.2, brand: "other", format: "driver", link: "https://s.shopee.vn/AUq7O6YlhQ", specs: { screen: "6.5 inch FHD+", cpu: "Helio G37", ram: "6GB", storage: "128GB", battery: "10000mAh, 18W" } }
 ];
 
 function getRecommendation(answers: string[], rejectedIds: number[]) {
@@ -304,11 +305,27 @@ export default function App() {
   const [rejectedIds, setRejectedIds] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showCompare, setShowCompare] = useState(false);
+  const [compareIds, setCompareIds] = useState<number[]>([]);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const initialized = useRef(false);
 
+  const handleToggleCompare = (id: number) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) return prev.filter(pid => pid !== id);
+      if (prev.length >= 3) return prev; // max 3 limit
+      return [...prev, id];
+    });
+  };
+
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      const { scrollHeight, clientHeight } = messagesContainerRef.current;
+      messagesContainerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: "smooth"
+      });
+    }
   };
 
   useEffect(() => {
@@ -366,6 +383,15 @@ export default function App() {
     } else {
       // User is interacting after the initial questions are done.
       const lowerAns = answer.toLowerCase();
+      
+      if (lowerAns.includes("so sánh")) {
+        setShowCompare(true);
+        setTimeout(() => {
+          setMessages(prev => [...prev, { id: generateId(), sender: 'bot', text: "Tuấn đã mở bảng so sánh cho bạn rồi nhé. Bạn có thể bấm chọn tối đa 3 máy bất kỳ để đối chiếu cấu hình chi tiết nha!", options: ["Máy này OK", "Tôi muốn xem máy khác", "Tư vấn lại từ đầu"] }]);
+        }, 600);
+        return;
+      }
+
       if (lowerAns.includes("máy này ok") || lowerAns.includes("ưng") || lowerAns.includes("cảm ơn") || lowerAns.includes("đã chốt")) {
         // They liked it
         const finalMsg = "Cảm ơn bạn đã tin tưởng dịch vụ của mình! Đừng quên bấm vào đường link truy cập gian hàng Shopee ở trên để chốt đơn với giá tốt nhất nhé. Chúc bạn một ngày vui vẻ nha!";
@@ -401,10 +427,10 @@ export default function App() {
       setRejectedIds(prev => isRetry ? [...prev, result.id] : [result.id]);
       
       const resultMessage = isRetry 
-        ? `Đây ạ, Tuấn đã tìm ra một mẫu khác chắc chắn sẽ hợp với bạn hơn:\n🔥 **${result.phone}**.\n\nLý do Tuấn đổi sang mẫu này: ${result.reason}\n\n👉 Click vào link bên dưới để chốt ngay nha:\n${result.link}`
-        : `Dạ Tuấn đã chọn được rồi ạ! Sản phẩm phù hợp nhất với bạn là:\n🔥 **${result.phone}**.\n\nLý do Tuấn đề xuất máy này: ${result.reason}\n\n👉 Bạn click vào link bên dưới để xem hình ảnh và đặt mua với giá ưu đãi trên Shopee nhé:\n${result.link}`;
+        ? `Đây ạ, Tuấn đã tìm ra một mẫu khác chắc chắn sẽ hợp với bạn hơn:\n🔥 **${result.phone}**.\n\nLý do Tuấn đổi sang mẫu này: ${result.reason}\n\n👉 Click vào link bên dưới để chốt ngay nha:\n${result.link}\n\n💡 *Mẹo: Bạn có thể bấm "⚖️ Mở bảng so sánh" ở dưới (hoặc icon chiếc cân ở góc phải) để đối chiếu thông số các máy nhé.*`
+        : `Dạ Tuấn đã chọn được rồi ạ! Sản phẩm phù hợp nhất với bạn là:\n🔥 **${result.phone}**.\n\nLý do Tuấn đề xuất máy này: ${result.reason}\n\n👉 Bạn click vào link bên dưới để xem hình ảnh và đặt mua với giá ưu đãi trên Shopee nhé:\n${result.link}\n\n💡 *Mẹo: Bạn có thể bấm "⚖️ Mở bảng so sánh" ở dưới (hoặc icon chiếc cân ở góc phải) để đối chiếu thông số các máy nhé.*`;
       
-      const followUpOptions = ["Máy này OK", "Tôi muốn xem máy khác", "Tư vấn lại từ đầu"];
+      const followUpOptions = ["Máy này OK", "Tôi muốn xem máy khác", "⚖️ Mở bảng so sánh", "Tư vấn lại từ đầu"];
 
       setMessages(prev => prev.map(msg => 
         msg.id === id ? { ...msg, text: resultMessage, options: followUpOptions, isTyping: false } : msg
@@ -443,14 +469,17 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center p-4 py-10 md:p-6 md:py-16 font-sans text-slate-100">
+    <div className="relative min-h-screen flex flex-col items-center font-sans text-slate-100 overflow-x-hidden w-full">
       {/* Animated Floating Background */}
       <FloatingBackground />
 
       {/* Main Content Wrapper (Above Background) */}
-      <main className="relative z-10 w-full max-w-3xl flex flex-col items-center gap-4 md:gap-6">
+      <div className="relative z-10 w-full flex flex-col items-center">
         
-        {/* Title Context */}
+        {/* Top Section - taking full viewport */}
+        <main className="w-full max-w-3xl flex flex-col items-center justify-center min-h-[100dvh] px-4 py-8 md:py-12 gap-4 md:gap-6">
+          
+          {/* Title Context */}
         <header className="text-center space-y-2 mb-2">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
@@ -474,7 +503,7 @@ export default function App() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="w-full bg-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] overflow-hidden flex flex-col h-[70vh] border border-white/10 relative"
+          className="w-full bg-slate-900/60 backdrop-blur-2xl rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] overflow-hidden flex flex-col flex-1 max-h-[85vh] border border-white/10 relative"
         >
           
           {/* Header */}
@@ -501,7 +530,7 @@ export default function App() {
           </div>
 
           {/* Chat Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-indigo-500/30">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin scrollbar-thumb-indigo-500/30">
             <AnimatePresence initial={false}>
               {messages.map((msg) => (
                 <motion.div
@@ -569,7 +598,6 @@ export default function App() {
                 </motion.div>
               ))}
             </AnimatePresence>
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input Area */}
@@ -599,12 +627,14 @@ export default function App() {
             </form>
           </div>
         </motion.section>
+        </main>
 
-        {/* SEO Content Block (Invisible/Subtle to users, vital for search engines) */}
-        <article className="w-full mt-10 md:mt-16 bg-slate-900/40 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/5 text-slate-300 shadow-xl max-w-4xl space-y-6">
-          <header className="mb-2 border-b border-indigo-500/20 pb-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-indigo-400 mb-2">
-              Chuyên Gia AI Tư Vấn Mua Điện Thoại Giá Rẻ, Pin Trâu, Chơi Game Mượt
+        {/* SEO Content Block (Below the Fold / Viewport) */}
+        <section className="w-full bg-slate-950/80 backdrop-blur-xl border-t border-white/10 py-16 px-4 md:px-6 relative z-10 shadow-2xl">
+          <article className="mx-auto bg-slate-900/40 rounded-2xl p-6 md:p-8 border border-white/5 text-slate-300 shadow-inner max-w-4xl space-y-6">
+            <header className="mb-2 border-b border-indigo-500/20 pb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-indigo-400 mb-2">
+              Chuyên Gia Tư Vấn Mua Điện Thoại Giá Rẻ, Pin Trâu, Chơi Game Mượt
             </h2>
             <p className="text-sm md:text-base text-slate-400">
               Cẩm nang tối ưu giúp bạn tìm ra một chiếc smartphone từ 1 triệu đến dưới 5 triệu đồng tốt nhất cho nhu cầu chụp ảnh, chạy Grab/Giao hàng hoặc chiến game 24/7.
@@ -614,7 +644,7 @@ export default function App() {
           <section className="space-y-4">
             <h3 className="text-xl font-semibold text-slate-200">Tại sao nên mua điện thoại giá rẻ theo tư vấn của Tuấn?</h3>
             <p className="text-sm md:text-base leading-relaxed">
-              Việc tìm kiếm một chiếc <strong>điện thoại giá rẻ</strong> hoạt động trơn tru từ 2 đến 3 năm không phải là điều dễ dàng với vô vàn mẫu mã như Xiaomi, Redmi, OPPO hay Samsung hiện nay. Tuấn là <strong>chuyên gia AI tư vấn cấu hình điện thoại</strong>, giúp bạn lọc ra những thiết bị sở hữu con chip mạnh mẽ nhất (như Snapdragon, MediaTek Helio), màn hình tần số quét 90Hz-120Hz mượt mà và dung lượng pin khủng 5000mAh.
+              Việc tìm kiếm một chiếc <strong>điện thoại giá rẻ</strong> hoạt động trơn tru từ 2 đến 3 năm không phải là điều dễ dàng với vô vàn mẫu mã như Xiaomi, Redmi, OPPO hay Samsung hiện nay. Tuấn là <strong>chuyên gia tư vấn cấu hình điện thoại</strong>, giúp bạn lọc ra những thiết bị sở hữu con chip mạnh mẽ nhất (như Snapdragon, MediaTek Helio), màn hình tần số quét 90Hz-120Hz mượt mà và dung lượng pin khủng 5000mAh.
             </p>
             <p className="text-sm md:text-base leading-relaxed">
               Nếu bạn mua 1 chiếc <strong>điện thoại dưới 1 triệu</strong>, rủi ro đơ lag và thay pin liên tục là rất cao. Đó là lý do Tuấn luôn khuyên người dùng tích lũy thêm một chút để mua các máy tầm <strong>giá 2 triệu - 3 triệu đồng</strong>, nhằm đảm bảo thời gian hoàn vốn tốt nhất khi dùng làm công cụ kiếm tiền hoặc học tập.
@@ -641,12 +671,106 @@ export default function App() {
             </div>
           </section>
 
-          <footer className="text-xs text-slate-500 pt-6 mt-4 border-t border-white/5 text-center">
-            Từ khóa liên quan: tư vấn điện thoại giá tốt, mua smartphone chính hãng shopee, điện thoại giá rẻ dưới 3 triệu, điện thoại cấu hình cao giá rẻ nhất, mua điện thoại sinh viên.
-          </footer>
-        </article>
+            <footer className="text-xs text-slate-500 pt-6 mt-4 border-t border-white/5 text-center">
+              Từ khóa liên quan: tư vấn điện thoại giá tốt, mua smartphone chính hãng shopee, điện thoại giá rẻ dưới 3 triệu, điện thoại cấu hình cao giá rẻ nhất, mua điện thoại sinh viên.
+            </footer>
+          </article>
+        </section>
 
-      </main>
+      </div>
+
+      {/* Compare Floating Button */}
+      <button
+        onClick={() => setShowCompare(true)}
+        className="fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-500 text-white p-4 mx-2 rounded-full shadow-[0_10px_25px_rgba(79,70,229,0.5)] flex items-center justify-center transition-all focus:ring-4 focus:ring-indigo-500/30 group"
+        title="So sánh cấu hình"
+      >
+        <Scale className="w-6 h-6" />
+        {compareIds.length > 0 && (
+          <span className="absolute -top-1 -right-1 bg-[#FF3B30] text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">{compareIds.length}</span>
+        )}
+      </button>
+
+      {/* Compare Modal */}
+      <AnimatePresence>
+        {showCompare && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 md:p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-5xl flex flex-col shadow-2xl overflow-hidden max-h-[90vh]"
+            >
+              <div className="flex justify-between items-center p-5 border-b border-white/10 bg-slate-800/50">
+                <h2 className="text-xl font-bold flex items-center gap-2"><Scale className="w-5 h-5 text-indigo-400"/> So Sánh Cấu Hình</h2>
+                <button onClick={() => setShowCompare(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors"><X className="w-5 h-5"/></button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+                {/* Section: Select Products */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium text-slate-400">Chọn tối đa 3 sản phẩm để so sánh ({compareIds.length}/3)</h3>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700">
+                    {PRODUCTS.map(p => {
+                      const isSelected = compareIds.includes(p.id);
+                      return (
+                        <button 
+                          key={p.id}
+                          onClick={() => handleToggleCompare(p.id)}
+                          className={`flex-shrink-0 px-4 py-2 border rounded-xl text-sm font-medium transition-all ${isSelected ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300' : 'bg-slate-800/50 border-white/5 text-slate-400 hover:bg-slate-800'}`}
+                        >
+                          {isSelected && <Check className="w-4 h-4 inline-block mr-1.5"/>}
+                          {p.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Section: Comparison View */}
+                {compareIds.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {compareIds.map(id => {
+                        const p = PRODUCTS.find(x => x.id === id)!;
+                        return (
+                          <div key={p.id} className="bg-slate-800/40 border border-white/5 rounded-2xl p-5 relative group">
+                            <button onClick={() => handleToggleCompare(p.id)} className="absolute top-3 right-3 p-1.5 bg-slate-900/50 hover:bg-[#FF3B30] rounded-full opacity-0 group-hover:opacity-100 transition-all"><X className="w-4 h-4"/></button>
+                            <h4 className="font-bold text-lg text-white mb-1 pr-6">{p.name}</h4>
+                            <p className="text-indigo-400 font-semibold mb-4">{p.price} Triệu VNĐ</p>
+                            
+                            <ul className="space-y-3 text-sm">
+                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Màn hình</span><span className="text-slate-200">{p.specs!.screen}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Vi xử lý (CPU)</span><span className="text-slate-200">{p.specs!.cpu}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">RAM</span><span className="text-slate-200">{p.specs!.ram}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Bộ nhớ trong</span><span className="text-slate-200">{p.specs!.storage}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Pin & Sạc</span><span className="text-slate-200">{p.specs!.battery}</span></li>
+                            </ul>
+                            
+                            <a href={p.link} target="_blank" rel="noopener noreferrer" className="mt-6 w-full flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 text-white font-medium py-2.5 rounded-xl transition-colors text-sm">
+                              <ShoppingCart className="w-4 h-4"/> Xem trên Shopee
+                            </a>
+                          </div>
+                        );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-slate-500 min-h-[300px]">
+                    <Scale className="w-16 h-16 mb-4 opacity-20" />
+                    <p>Chưa có sản phẩm nào được chọn.</p>
+                  </div>
+                )}
+
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
