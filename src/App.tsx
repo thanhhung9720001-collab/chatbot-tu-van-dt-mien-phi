@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { GoogleGenAI } from "@google/genai";
 import { 
   Bot, User, Send, Smartphone, RefreshCcw, ShoppingCart,
   Video, Calendar, Image as ImageIcon, Camera, 
@@ -48,7 +49,7 @@ type Message = {
 
 const QUESTIONS = [
   {
-    text: "Dạ chào bạn! Mình là Tuấn, chuyên viên hỗ trợ trực tuyến. Mình sẽ giúp bạn chọn ra chiếc máy 'pin trâu giá rẻ' ưng ý nhất. Bạn cho mình xin một vài thông tin nhé!\n\nNgân sách tối đa của bạn là khoảng bao nhiêu ạ?",
+    text: "Dạ chào bạn! Mình là Tuấn, chuyên viên tư vấn. Mình sẽ giúp bạn chọn ra chiếc máy ưng ý nhất. Bạn cho mình xin một vài thông tin nhé!\n\nNgân sách tối đa của bạn là khoảng bao nhiêu ạ?",
     options: ["Dưới 1 triệu", "Khoảng 2 - 4 triệu", "Trên 5 triệu"]
   },
   {
@@ -60,6 +61,8 @@ const QUESTIONS = [
     options: ["Mình thích Xiaomi/POCO", "Mình thích OPPO", "Samsung / Hãng khác đều được"]
   }
 ];
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const PRODUCTS = [
   // Xiaomi
@@ -82,9 +85,9 @@ const PRODUCTS = [
 function getRecommendation(answers: string[], rejectedIds: number[]) {
   const [budget, usage, brand] = answers;
   
-  const b = budget.toLowerCase();
-  const u = usage.toLowerCase();
-  const br = brand.toLowerCase();
+  const b = (budget || "").toLowerCase();
+  const u = (usage || "").toLowerCase();
+  const br = (brand || "").toLowerCase();
 
   const isUnder1M = b.includes("dưới 1") || b.includes("1 triệu") || b.includes("1tr") || b.includes("dưới một") || b.includes("1 tr");
   const isOver5M = b.includes("trên 5") || b.includes("hơn 5") || b.includes("5 triệu") || b.includes("5tr");
@@ -95,7 +98,7 @@ function getRecommendation(answers: string[], rejectedIds: number[]) {
 
   let targetType = "basic";
   if (u.includes("game")) targetType = "game";
-  else if (u.includes("xe") || u.includes("giao hàng")) targetType = "driver";
+  else if (u.includes("xe") || u.includes("giao hàng") || u.includes("pin")) targetType = "driver";
 
   if (isUnder1M) {
     let cheapestProducts = [...PRODUCTS].sort((a,b) => a.price - b.price);
@@ -104,7 +107,7 @@ function getRecommendation(answers: string[], rejectedIds: number[]) {
     
     let selectedProduct = availableCandidates[0];
 
-    let reason = `Dạ Tuấn chia sẻ thật lòng, các dòng điện thoại smartphone dưới 1 triệu hiện nay thường có nhược điểm lớn là cảm ứng rất dễ đơ lag, pin mau chai và rủi ro hỏng vặt rất cao. Lắm lúc tiền đi sửa chữa lặt vặt cộng lại còn tốn hơn tiền mua máy.\n\nThay vì thế, Tuấn khuyên mình nên ráng cố thêm một chút xíu để sở hữu chiếc ${selectedProduct.name} này. Đây là đại diện có mức giá sinh viên tốt nhất bên kho Tuấn hiện tại (chỉ ${selectedProduct.price} triệu). Mua 1 lần dùng mượt 2-3 năm ổn định mới thực sự là bài toán tiết kiệm thông minh nhất đó ạ!`;
+    let reason = `Dạ Tuấn chia sẻ thật lòng, các dòng điện thoại smartphone dưới 1 triệu hiện nay thường có nhược điểm lớn là cảm ứng rất dễ đơ lag, pin mau chai và rủi ro hỏng vặt rất cao. Thay vì thế, Tuấn khuyên mình nên cố thêm một chút xíu để sở hữu chiếc ${selectedProduct.name} này. Đây là đại diện có mức giá rẻ nhất kho Tuấn (chỉ ${selectedProduct.price} triệu). Mua 1 lần dùng mượt 2-3 năm ổn định mới thực sự là tiết kiệm!`;
 
     return {
       id: selectedProduct.id,
@@ -115,18 +118,14 @@ function getRecommendation(answers: string[], rejectedIds: number[]) {
   }
 
   if (isOver5M) {
-    let mostExpensiveProducts = [...PRODUCTS].sort((a,b) => b.price - a.price); // Descending price
-    
-    // Filter by brand if matched
+    let mostExpensiveProducts = [...PRODUCTS].sort((a,b) => b.price - a.price);
     let brandCandidates = mostExpensiveProducts.filter(p => p.brand === targetBrand);
     if (brandCandidates.length > 0) mostExpensiveProducts = brandCandidates;
-
     let availableCandidates = mostExpensiveProducts.filter(p => !rejectedIds.includes(p.id));
-    if (availableCandidates.length === 0) availableCandidates = mostExpensiveProducts; // fallback
+    if (availableCandidates.length === 0) availableCandidates = mostExpensiveProducts;
     
     let selectedProduct = availableCandidates[0];
-
-    let reason = `Dạ Tuấn chia sẻ thật tình, với mức tài chính trên 5 triệu thì bạn hoàn toàn dư sức tậu được những siêu phẩm tiệm cận dòng cao cấp rồi ạ! Những dòng đắt tiền này mang lại trải nghiệm hoàn toàn khác biệt: màn hình tần số quét siêu mượt, chip xử lý có thể "cân" mọi loại game nặng nhất hiện nay, và khả năng sạc siêu tốc giúp tiết kiệm cực nhiều thời gian. Không chỉ thế camera chụp ban đêm cũng bao nét.\n\nTrong danh sách cửa hàng, Tuấn đặc biệt chọn ra chiếc ${selectedProduct.name} (chỉ ${selectedProduct.price} triệu). Nó hội tụ đầy đủ tinh hoa của dòng cao cấp nhưng mức giá lại cực kỳ dễ chịu. Độ bền và mượt mà của máy thì ăn đứt mấy dòng tiền ít. Tin Tuấn đi, cầm máy này trên tay cực kỳ đẳng cấp ạ!`;
+    let reason = `Dạ với mức tài chính trên 5 triệu thì bạn hoàn toàn có thể mua được mức cấu hình cận cao cấp rồi ạ! Tuấn đặc biệt chọn ra chiếc ${selectedProduct.name} (giá đang Sale rẻ nhất chỉ ${selectedProduct.price} triệu). Cấu hình đảm bảo ăn đứt mọi đối thủ trong tầm giá!`;
 
     return {
       id: selectedProduct.id,
@@ -137,41 +136,33 @@ function getRecommendation(answers: string[], rejectedIds: number[]) {
   }
 
   let maxPrice = 3.0; // fallback to 2-3
-  if (b.includes("3 - 4") || b.includes("3-4") || b.includes("tiệu") || b.includes("2 - 4") || b.includes("2-4")) maxPrice = 4.0;
+  if (b.includes("3 - 4") || b.includes("3-4") || b.includes("2 - 4") || b.includes("2-4")) maxPrice = 4.0;
   else if (b.includes("4 - 5") || b.includes("4-5")) maxPrice = 5.0;
 
-  // Filter products strictly first
   let candidates = PRODUCTS.filter(p => p.brand === targetBrand);
-  if (candidates.length === 0) candidates = PRODUCTS; // fallback
+  if (candidates.length === 0) candidates = PRODUCTS;
 
-  // Sort by price condition (assume ranges: 2.0-3.0, 3.0-4.0, 4.0-5.0)
   let priceFiltered = candidates.filter(p => 
     maxPrice <= 3.0 ? p.price <= 3.0 : (p.price > maxPrice - 1.0 && p.price <= maxPrice)
   );
   if (priceFiltered.length > 0) candidates = priceFiltered;
 
-  // Filter out rejected items
   let availableCandidates = candidates.filter(p => !rejectedIds.includes(p.id));
   if (availableCandidates.length === 0) {
-    // If all strictly matched candidates are rejected, expand search to ALL products that haven't been rejected
     availableCandidates = PRODUCTS.filter(p => !rejectedIds.includes(p.id));
   }
-  if (availableCandidates.length === 0) {
-    // Ultimate fallback if somehow they cycle through everything
-    availableCandidates = PRODUCTS;
-  }
+  if (availableCandidates.length === 0) availableCandidates = PRODUCTS;
 
-  // Find the best match by usage type among available candidates
   let selectedProduct = availableCandidates.find(p => p.format === targetType);
   if (!selectedProduct) selectedProduct = availableCandidates[0];
 
   let reason = "";
   if (targetType === "game") {
-    reason = `Dạ mẫu này xài chip rất tốt để chạy game cực kỳ mượt mà, màn hình sáng đẹp. Chiến game liên tục với con này bão giá chỉ ${selectedProduct.price} triệu là quá hời ạ. Mình bấm vào link để xem cấu hình chi tiết nha!`;
+    reason = `Dạ mẫu này xài chip rất tốt để chạy game cực kỳ mượt mà, màn hình sáng đẹp. Chiến game liên tục với con này (giá rẻ đỉnh của chóp chỉ ${selectedProduct.price} triệu) là quá hời ạ. Mình bấm vào link để xem cấu hình chi tiết nha!`;
   } else if (targetType === "driver") {
-    reason = `Anh/chị chạy xe ngoài đường nguyên ngày thì viên pin siêu khủng của chiếc này là chân ái đó ạ. Không cần kè kè sạc dự phòng, giá lại cực mềm chỉ ${selectedProduct.price} triệu giúp mau hoàn vốn ạ.`;
+    reason = `Anh/chị chạy xe ngoài đường nguyên ngày thì viên pin siêu khủng của chiếc này là chân ái đó ạ. Giá lại cực mềm cực rẻ chỉ ${selectedProduct.price} triệu giúp mau hoàn vốn ạ.`;
   } else {
-    reason = `Dạ với mức ngân sách này thì mẫu ${selectedProduct.name} đang là sự lựa chọn tối ưu nhất. Máy chạy mượt cực kỳ, bộ nhớ lớn, thỏa sức nghe gọi xem Youtube với mức siêu hời chỉ ${selectedProduct.price} triệu ạ.`;
+    reason = `Dạ với mức ngân sách này thì mẫu ${selectedProduct.name} đang là sự lựa chọn giá rẻ cấu hình khỏe hợp lý tuyệt đối. Thoải mái lưu xem Youtube cả ngày không giật lag. Giá sốc cực hời chỉ ${selectedProduct.price} triệu ạ.`;
   }
 
   return {
@@ -186,19 +177,24 @@ const generateId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
-const FloatingBackground = () => {
+const FloatingBackground = React.memo(() => {
   // Generate random phones
   const [phones] = useState(() => 
-    Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 90}%`,
-      duration: 35 + Math.random() * 45,
-      delay: -(Math.random() * 40), // Negative delay so they are on screen immediately
-      width: 90 + Math.random() * 60,
-      rotation: -25 + Math.random() * 50,
-      opacity: 0.25 + Math.random() * 0.35,
-      seed: `tech-iphone-${i}`
-    }))
+    Array.from({ length: 15 }).map((_, i) => {
+      const initialRotation = -25 + Math.random() * 50;
+      const targetRotation = initialRotation + (Math.random() > 0.5 ? 45 : -45);
+      return {
+        id: i,
+        left: `${Math.random() * 90}%`,
+        duration: 35 + Math.random() * 45,
+        delay: -(Math.random() * 40), // Negative delay so they are on screen immediately
+        width: 90 + Math.random() * 60,
+        rotation: initialRotation,
+        targetRotation: targetRotation,
+        opacity: 0.25 + Math.random() * 0.35,
+        seed: `tech-iphone-${i}`
+      };
+    })
   );
 
   return (
@@ -232,7 +228,7 @@ const FloatingBackground = () => {
           }}
           animate={{
             y: ['0vh', '-130vh'],
-            rotate: [item.rotation, item.rotation + (Math.random() > 0.5 ? 45 : -45)]
+            rotate: [item.rotation, item.targetRotation]
           }}
           transition={{
             duration: item.duration,
@@ -297,7 +293,7 @@ const FloatingBackground = () => {
       ))}
     </div>
   );
-};
+});
 
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -305,6 +301,7 @@ export default function App() {
   const [answers, setAnswers] = useState<string[]>([]);
   const [rejectedIds, setRejectedIds] = useState<number[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [isAiMode, setIsAiMode] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [compareIds, setCompareIds] = useState<number[]>([]);
@@ -337,7 +334,7 @@ export default function App() {
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true;
-      addBotMessage(QUESTIONS[0].text, QUESTIONS[0].options);
+      addBotMessage(QUESTIONS[0].text, QUESTIONS[0].options, 800);
     }
   }, []);
 
@@ -352,7 +349,7 @@ export default function App() {
     }, isTypingDelay);
   };
 
-  const handleUserAnswer = (answer: string) => {
+  const handleUserAnswer = async (answer: string, isFromButton: boolean = false) => {
     if (!answer.trim() || isAnalyzing) return;
     
     // Remove options from previous bot message
@@ -366,10 +363,43 @@ export default function App() {
     });
 
     // Add user message
-    setMessages(prev => [...prev, { id: generateId(), sender: 'user', text: answer }]);
+    const userMsgId = generateId();
+    setMessages(prev => [...prev, { id: userMsgId, sender: 'user', text: answer }]);
     setInputValue("");
     
-    if (currentStep < QUESTIONS.length) {
+    const lowerAns = answer.toLowerCase();
+    
+    if (lowerAns.includes("so sánh")) {
+      setShowCompare(true);
+      setTimeout(() => {
+        setMessages(prev => [...prev, { id: generateId(), sender: 'bot', text: "Tuấn đã mở bảng so sánh cho bạn rồi nhé. Bạn có thể bấm chọn tối đa 3 máy bất kỳ để đối chiếu cấu hình chi tiết nha!", options: ["Máy này OK", "Tôi muốn xem máy khác", "Làm lại từ đầu"] }]);
+      }, 600);
+      return;
+    }
+
+    if (lowerAns.includes("tư vấn lại từ đầu") || lowerAns.includes("làm lại từ đầu")) {
+      resetChat();
+      return;
+    }
+
+    if (lowerAns.includes("máy này ok") || lowerAns.includes("ưng") || lowerAns.includes("cảm ơn") || lowerAns.includes("đã chốt")) {
+      const finalMsg = "Cảm ơn bạn đã tin tưởng dịch vụ của mình! Đừng quên bấm vào đường link rước ẻm về nhaaa!";
+      setTimeout(() => {
+        setMessages(prev => [...prev, { id: generateId(), sender: 'bot', text: finalMsg }]);
+      }, 500);
+      return;
+    } else if (lowerAns.includes("tôi muốn xem máy khác") || lowerAns.includes("khác") || lowerAns.includes("không ưng")) {
+      handleAnalysis(answers, true); // true to signify retry flow
+      return;
+    }
+
+    // AI Triggering condition
+    if (!isFromButton) {
+      setIsAiMode(true);
+    } // Once entered AI mode, we don't go back unless resetChat is called
+
+    // If it's pure button flow AND we haven't entered AI mode yet
+    if (isFromButton && !isAiMode && currentStep < QUESTIONS.length) {
       const newAnswers = [...answers, answer];
       setAnswers(newAnswers);
       
@@ -381,31 +411,85 @@ export default function App() {
       } else {
         handleAnalysis(newAnswers, false);
       }
-    } else {
-      // User is interacting after the initial questions are done.
-      const lowerAns = answer.toLowerCase();
+      return;
+    }
+
+    // Set Analyzing state for AI
+    setIsAnalyzing(true);
+    const botWaitId = generateId();
+    setMessages(prev => [...prev, { id: botWaitId, sender: 'bot', text: 'Đang gõ...', isTyping: true }]);
+
+    try {
+      // Create system instruction
+      const systemInstruction = `
+Bạn là Tuấn, một chuyên viên tư vấn mua điện thoại smartphone giá rẻ (từ 1 đến 5 triệu đồng), pin trâu, chơi game, và chạy Grab/Shipper.
+BẠN ĐANG LÀM AFFILIATE, NÊN MỤC TIÊU CUỐI CÙNG LÀ CHUYỂN ĐỔI NGƯỜI DÙNG BẤM VÀO LINK MUA HÀNG BÊN DƯỚI.
+
+QUY TẮC CỐT LÕI (RẤT QUAN TRỌNG):
+1. ĐỂ TRÒ CHUYỆN CHÂN THỰC: Khi khách hàng vừa mới đưa ra rải rác nhu cầu ban đầu, TUYỆT ĐỐI KHÔNG vội vàng đưa ra sản phẩm ngay. Hãy thể hiện sự quan tâm bằng cách HỎI THÊM 1 đến 2 câu hỏi khéo léo để đào sâu về thói quen sử dụng, nhằm tạo sự gần gũi. 
+(VD: "Dạ cấu hình thì em sẵn rồi, nhưng không biết mình hay cày game gì để Tuấn chọn chip chuẩn nhất cho mình ạ?", "Dạ chạy xe thì pin trâu là chắc chắn rồi, nhưng ngày mình hay chạy ban ngày nắng gắt không để em lựa con màn hình chống lóa sáng rõ cho dễ nhìn app ạ?").
+2. CHỐT SALE DỰA TRÊN ĐỘ PHÙ HỢP: CHỈ sau khi đã tương tác hỏi đáp thêm khoảng 1-2 vòng và hiểu rõ ý khách, bạn mới tung ra 1 ĐẾN 2 SẢN PHẨM mang lại tỉ lệ phù hợp cao nhất trong kho.
+3. BẠN CHỈ ĐƯỢC TƯ VẤN VỀ ĐIỆN THOẠI DI ĐỘNG. Nếu người dùng hỏi lan man, ngoài lề (như thời tiết, nấu ăn, lịch sử...), hãy khéo léo và HÀI HƯỚC lái câu chuyện về lại việc chọn mua điện thoại. 
+4. Dùng ngôn từ thân thiện, nhiệt tình của người bán hàng (xưng hô Tuấn - bạn/anh/chị).
+5. Khi tư vấn máy, LUÔN LUÔN kèm theo LINK MUA HÀNG tương ứng trong dữ liệu kho. Tên điện thoại và giá tiền thì bôi đậm (**text**), ghi rõ chữ 'Triệu'.
+6. TRẢ LỜI NGẮN GỌN, XÚC TÍCH, DỄ HIỂU. ĐỪNG GIẢI THÍCH DÀI DÒNG QUÁ LÀM KHÁCH LƯỜI ĐỌC.
+
+DANH SÁCH SẢN PHẨM Ở KHO:
+- Xiaomi POCO C65 8GB/256GB - Giá 2.6 Triệu - Pin 5000mAh. Link: https://s.shopee.vn/8V530QgNkD
+- Xiaomi Redmi 13C 6GB/128GB - Giá 2.3 Triệu - Pin 5000mAh. Link: https://s.shopee.vn/20rZGU57w2
+- Xiaomi Mi 10S 5G - Giá 3.4 Triệu - Chơi Game (Snap 870). Link: https://s.shopee.vn/8ASCboheQB
+- Xiaomi Redmi 15C 8GB/256GB - Giá 3.2 Triệu - Pin khủng 6000mAh. Link: https://s.shopee.vn/6VJycknznV
+- OPPO A78 5G 6GB/128GB - Giá 2.6 Triệu - Pin 5000mAh. Link: https://s.shopee.vn/gMBg2ACdu
+- OPPO Reno10 5G - Giá 3.8 Triệu - Chơi Game màn 120Hz. Link: https://s.shopee.vn/901JbLeTjE
+- Samsung Galaxy S20 FE - Giá 3.5 Triệu - Chơi Game (Snap 865). Link: https://s.shopee.vn/1qY94B5lH3
+- i17 Ultra - Giá 2.9 Triệu - Chạy Grab/Shipper cực trâu với Pin 12000mAh. Link: https://s.shopee.vn/7VCVoakBlb
+- Oukitel F150 B1 Pro - Giá 4.2 Triệu - Chạy đường dài siêu bền bỉ Pin 10000mAh. Link: https://s.shopee.vn/AUq7O6YlhQ
+      `;
+
+      // Setup history in alternating user/model format
+      const validMessages = messages.filter(m => !m.isTyping && m.id !== botWaitId);
       
-      if (lowerAns.includes("so sánh")) {
-        setShowCompare(true);
-        setTimeout(() => {
-          setMessages(prev => [...prev, { id: generateId(), sender: 'bot', text: "Tuấn đã mở bảng so sánh cho bạn rồi nhé. Bạn có thể bấm chọn tối đa 3 máy bất kỳ để đối chiếu cấu hình chi tiết nha!", options: ["Máy này OK", "Tôi muốn xem máy khác", "Tư vấn lại từ đầu"] }]);
-        }, 600);
-        return;
+      const formattedHistory: any[] = [];
+      let lastRole = null;
+
+      for (const msg of validMessages) {
+        const role = msg.sender === "user" ? "user" : "model";
+        const text = msg.text || "Xin chào"; // Fallback to avoid empty parts
+        
+        if (role === lastRole) {
+          // Append to previous part if roles are consecutive (Gemini doesn't allow consecutive same roles)
+          formattedHistory[formattedHistory.length - 1].parts[0].text += `\n\n${text}`;
+        } else {
+          formattedHistory.push({
+            role: role,
+            parts: [{ text: text }]
+          });
+          lastRole = role;
+        }
       }
 
-      if (lowerAns.includes("máy này ok") || lowerAns.includes("ưng") || lowerAns.includes("cảm ơn") || lowerAns.includes("đã chốt")) {
-        // They liked it
-        const finalMsg = "Cảm ơn bạn đã tin tưởng dịch vụ của mình! Đừng quên bấm vào đường link truy cập gian hàng Shopee ở trên để chốt đơn với giá tốt nhất nhé. Chúc bạn một ngày vui vẻ nha!";
-        setTimeout(() => {
-          setMessages(prev => [...prev, { id: generateId(), sender: 'bot', text: finalMsg }]);
-        }, 500);
-      } else if (lowerAns.includes("tư vấn lại từ đầu") || lowerAns.includes("lại")) {
-        resetQuiz();
-      } else if (lowerAns.includes("tôi muốn xem máy khác") || lowerAns.includes("khác") || lowerAns.includes("không ưng")) {
-        handleAnalysis(answers, true); // True to signify retry flow
-      } else {
-        handleAnalysis(answers, true); // Default to another recommendation just in case
-      }
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [...formattedHistory, { role: "user", parts: [{ text: answer }] }],
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+        }
+      });
+
+      setIsAnalyzing(false);
+      const reply = response.text || "Xin lỗi, Tuấn đang suy nghĩ chưa ra, bạn thông cảm nói lại giúp Tuấn nhé!";
+      
+      setMessages(prevMsgs => prevMsgs.map(msg => 
+        msg.id === botWaitId ? { ...msg, text: reply, isTyping: false, options: ["Mở bảng so sánh", "Tư vấn lại từ đầu"] } : msg
+      ));
+      
+    } catch (error) {
+      console.error("Error calling Gemini API:", error);
+      setIsAnalyzing(false);
+      setMessages(prevMsgs => prevMsgs.map(msg => 
+        msg.id === botWaitId ? { ...msg, text: "Xin lỗi, đường truyền của Tuấn đang gặp chút sự cố mạng. Bạn nhờ anh kỹ thuật mạng check xíu nha!", isTyping: false } : msg
+      ));
     }
   };
 
@@ -420,16 +504,14 @@ export default function App() {
     setMessages(prev => [...prev, { id, sender: 'bot', text: waitText, isTyping: true }]);
     
     setTimeout(() => {
-      // Get a recommendation using the current rejected IDs
       const currentRejected = isRetry ? rejectedIds : [];
       const result = getRecommendation(finalAnswers, currentRejected);
       
-      // Add the new recommendation ID to rejected for NEXT time
       setRejectedIds(prev => isRetry ? [...prev, result.id] : [result.id]);
       
       const resultMessage = isRetry 
-        ? `Đây ạ, Tuấn đã tìm ra một mẫu khác chắc chắn sẽ hợp với bạn hơn:\n🔥 **${result.phone}**.\n\nLý do Tuấn đổi sang mẫu này: ${result.reason}\n\n👉 Click vào link bên dưới để chốt ngay nha:\n${result.link}\n\n💡 *Mẹo: Bạn có thể bấm "⚖️ Mở bảng so sánh" ở dưới (hoặc icon chiếc cân ở góc phải) để đối chiếu thông số các máy nhé.*`
-        : `Dạ Tuấn đã chọn được rồi ạ! Sản phẩm phù hợp nhất với bạn là:\n🔥 **${result.phone}**.\n\nLý do Tuấn đề xuất máy này: ${result.reason}\n\n👉 Bạn click vào link bên dưới để xem hình ảnh và đặt mua với giá ưu đãi trên Shopee nhé:\n${result.link}\n\n💡 *Mẹo: Bạn có thể bấm "⚖️ Mở bảng so sánh" ở dưới (hoặc icon chiếc cân ở góc phải) để đối chiếu thông số các máy nhé.*`;
+        ? `Đây ạ, Tuấn đã tìm ra một mẫu khác chắc chắn sẽ hợp với bạn hơn:\n🔥 **${result.phone}**.\n\nLý do Tuấn đổi sang mẫu này: ${result.reason}\n\n👉 Click vào link bên dưới để chốt ngay nha:\n${result.link}`
+        : `Dạ Tuấn đã chọn được rồi ạ! Sản phẩm phù hợp nhất với bạn là:\n🔥 **${result.phone}**.\n\nLý do Tuấn đề xuất máy này: ${result.reason}\n\n👉 Bạn click vào link bên dưới để xem hình ảnh và đặt mua với giá ưu đãi trên Shopee nhé:\n${result.link}`;
       
       const followUpOptions = ["Máy này OK", "Tôi muốn xem máy khác", "⚖️ Mở bảng so sánh", "Tư vấn lại từ đầu"];
 
@@ -441,11 +523,12 @@ export default function App() {
     }, 2800);
   };
 
-  const resetQuiz = () => {
+  const resetChat = () => {
     setMessages([]);
     setCurrentStep(0);
     setAnswers([]);
     setRejectedIds([]);
+    setIsAiMode(false);
     setIsAnalyzing(false);
     addBotMessage(QUESTIONS[0].text, QUESTIONS[0].options, 300);
   };
@@ -510,9 +593,11 @@ export default function App() {
           {/* Header */}
           <div className="bg-white/5 border-b border-white/10 p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-indigo-500/40 relative shadow-sm shrink-0">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" referrerPolicy="no-referrer" alt="Consultant Avatar" fetchPriority="high" className="w-full h-full object-cover" />
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></div>
+              <div className="relative shrink-0">
+                <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-indigo-500/40 shadow-sm">
+                  <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" referrerPolicy="no-referrer" alt="Consultant Avatar" fetchPriority="high" className="w-full h-full object-cover" />
+                </div>
+                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-slate-900 rounded-full z-10 translate-x-[10%] translate-y-[10%]"></div>
               </div>
               <div>
                 <h2 className="font-bold text-base md:text-lg text-slate-100">Tuấn - Chuyên Viên Tư Vấn</h2>
@@ -522,7 +607,7 @@ export default function App() {
               </div>
             </div>
             <button 
-              onClick={resetQuiz}
+              onClick={resetChat}
               className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
               title="Làm lại từ đầu"
               aria-label="Làm lại từ đầu"
@@ -587,7 +672,7 @@ export default function App() {
                           {msg.options.map((opt, idx) => (
                             <button
                               key={idx}
-                              onClick={() => handleUserAnswer(opt)}
+                              onClick={() => handleUserAnswer(opt, true)}
                               className="bg-slate-800/60 backdrop-blur-md border border-indigo-400/40 text-indigo-300 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 px-4 py-2.5 rounded-full text-sm font-medium transition-all shadow-sm"
                             >
                               {opt}
@@ -607,7 +692,7 @@ export default function App() {
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
-                handleUserAnswer(inputValue);
+                handleUserAnswer(inputValue, false);
               }}
               className="flex gap-3 items-center relative"
             >
@@ -615,14 +700,14 @@ export default function App() {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder={currentStep >= QUESTIONS.length || isAnalyzing ? "Tuyệt vời!! Bạn hãy xem máy bên trên nhé..." : "Nhập câu trả lời của bạn..."}
-                disabled={currentStep >= QUESTIONS.length || isAnalyzing}
+                placeholder={isAnalyzing ? "Tuấn đang suy nghĩ..." : "Nhập tin nhắn của bạn..."}
+                disabled={isAnalyzing}
                 className="flex-1 bg-slate-800/80 border border-white/10 text-white placeholder-slate-400 text-sm rounded-full focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 block w-full p-3.5 px-6 transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
               />
               <button
                 type="submit"
                 aria-label="Gửi tin nhắn"
-                disabled={!inputValue.trim() || currentStep >= QUESTIONS.length || isAnalyzing}
+                disabled={!inputValue.trim() || isAnalyzing}
                 className="absolute right-2 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-indigo-500/30 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center justify-center transition-colors disabled:opacity-50 disabled:bg-slate-700 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4 ml-0.5" />
