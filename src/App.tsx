@@ -254,6 +254,7 @@ const FloatingBackground = () => {
               src={`https://picsum.photos/seed/${item.seed}/200/400`} 
               referrerPolicy="no-referrer" 
               alt="Screen wallpaper" 
+              loading="lazy"
               className="absolute inset-0 w-full h-full object-cover opacity-70 blur-[3px]" 
             />
             
@@ -510,7 +511,7 @@ export default function App() {
           <div className="bg-white/5 border-b border-white/10 p-4 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-indigo-500/40 relative shadow-sm shrink-0">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" referrerPolicy="no-referrer" alt="Consultant Avatar" className="w-full h-full object-cover" />
+                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80" referrerPolicy="no-referrer" alt="Consultant Avatar" fetchPriority="high" className="w-full h-full object-cover" />
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-slate-900 rounded-full"></div>
               </div>
               <div>
@@ -524,6 +525,7 @@ export default function App() {
               onClick={resetQuiz}
               className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors"
               title="Làm lại từ đầu"
+              aria-label="Làm lại từ đầu"
             >
               <RefreshCcw className="w-5 h-5" />
             </button>
@@ -545,7 +547,7 @@ export default function App() {
                     <div className="flex-shrink-0 mt-auto hidden md:block">
                       {msg.sender === 'bot' ? (
                         <div className="w-8 h-8 rounded-full overflow-hidden border border-indigo-500/50 shadow-sm relative">
-                          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80" referrerPolicy="no-referrer" alt="Tuấn Avatar" className="w-full h-full object-cover" />
+                          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=100&q=80" referrerPolicy="no-referrer" alt="Tuấn Avatar" loading="lazy" className="w-full h-full object-cover" />
                         </div>
                       ) : (
                         <div className="w-8 h-8 bg-slate-700 text-slate-300 rounded-full flex items-center justify-center border border-slate-600">
@@ -619,6 +621,7 @@ export default function App() {
               />
               <button
                 type="submit"
+                aria-label="Gửi tin nhắn"
                 disabled={!inputValue.trim() || currentStep >= QUESTIONS.length || isAnalyzing}
                 className="absolute right-2 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-indigo-500/30 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center justify-center transition-colors disabled:opacity-50 disabled:bg-slate-700 disabled:cursor-not-allowed"
               >
@@ -671,7 +674,7 @@ export default function App() {
             </div>
           </section>
 
-            <footer className="text-xs text-slate-500 pt-6 mt-4 border-t border-white/5 text-center">
+            <footer className="text-xs text-slate-400 pt-6 mt-4 border-t border-white/5 text-center">
               Từ khóa liên quan: tư vấn điện thoại giá tốt, mua smartphone chính hãng shopee, điện thoại giá rẻ dưới 3 triệu, điện thoại cấu hình cao giá rẻ nhất, mua điện thoại sinh viên.
             </footer>
           </article>
@@ -684,6 +687,7 @@ export default function App() {
         onClick={() => setShowCompare(true)}
         className="fixed bottom-6 right-6 z-40 bg-indigo-600 hover:bg-indigo-500 text-white p-4 mx-2 rounded-full shadow-[0_10px_25px_rgba(79,70,229,0.5)] flex items-center justify-center transition-all focus:ring-4 focus:ring-indigo-500/30 group"
         title="So sánh cấu hình"
+        aria-label="Mở bảng so sánh cấu hình"
       >
         <Scale className="w-6 h-6" />
         {compareIds.length > 0 && (
@@ -708,7 +712,7 @@ export default function App() {
             >
               <div className="flex justify-between items-center p-5 border-b border-white/10 bg-slate-800/50">
                 <h2 className="text-xl font-bold flex items-center gap-2"><Scale className="w-5 h-5 text-indigo-400"/> So Sánh Cấu Hình</h2>
-                <button onClick={() => setShowCompare(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors"><X className="w-5 h-5"/></button>
+                <button onClick={() => setShowCompare(false)} aria-label="Đóng bảng so sánh" className="p-2 hover:bg-white/10 rounded-xl transition-colors"><X className="w-5 h-5"/></button>
               </div>
               
               <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
@@ -739,16 +743,16 @@ export default function App() {
                         const p = PRODUCTS.find(x => x.id === id)!;
                         return (
                           <div key={p.id} className="bg-slate-800/40 border border-white/5 rounded-2xl p-5 relative group">
-                            <button onClick={() => handleToggleCompare(p.id)} className="absolute top-3 right-3 p-1.5 bg-slate-900/50 hover:bg-[#FF3B30] rounded-full opacity-0 group-hover:opacity-100 transition-all"><X className="w-4 h-4"/></button>
+                            <button onClick={() => handleToggleCompare(p.id)} aria-label={`Xoá ${p.name} khỏi so sánh`} className="absolute top-3 right-3 p-1.5 bg-slate-900/50 hover:bg-[#FF3B30] rounded-full opacity-0 group-hover:opacity-100 transition-all"><X className="w-4 h-4"/></button>
                             <h4 className="font-bold text-lg text-white mb-1 pr-6">{p.name}</h4>
                             <p className="text-indigo-400 font-semibold mb-4">{p.price} Triệu VNĐ</p>
                             
                             <ul className="space-y-3 text-sm">
-                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Màn hình</span><span className="text-slate-200">{p.specs!.screen}</span></li>
-                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Vi xử lý (CPU)</span><span className="text-slate-200">{p.specs!.cpu}</span></li>
-                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">RAM</span><span className="text-slate-200">{p.specs!.ram}</span></li>
-                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Bộ nhớ trong</span><span className="text-slate-200">{p.specs!.storage}</span></li>
-                              <li className="flex flex-col"><span className="text-slate-500 text-xs uppercase mb-0.5">Pin & Sạc</span><span className="text-slate-200">{p.specs!.battery}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-400 text-xs uppercase mb-0.5">Màn hình</span><span className="text-slate-200">{p.specs!.screen}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-400 text-xs uppercase mb-0.5">Vi xử lý (CPU)</span><span className="text-slate-200">{p.specs!.cpu}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-400 text-xs uppercase mb-0.5">RAM</span><span className="text-slate-200">{p.specs!.ram}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-400 text-xs uppercase mb-0.5">Bộ nhớ trong</span><span className="text-slate-200">{p.specs!.storage}</span></li>
+                              <li className="flex flex-col"><span className="text-slate-400 text-xs uppercase mb-0.5">Pin & Sạc</span><span className="text-slate-200">{p.specs!.battery}</span></li>
                             </ul>
                             
                             <a href={p.link} target="_blank" rel="noopener noreferrer" className="mt-6 w-full flex items-center justify-center gap-2 bg-slate-700/50 hover:bg-slate-700 text-white font-medium py-2.5 rounded-xl transition-colors text-sm">
