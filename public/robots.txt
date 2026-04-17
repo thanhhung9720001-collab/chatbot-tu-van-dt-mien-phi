@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chatbot-tu-van-dt-mien-phi.vercel.app/sitemap.xml
